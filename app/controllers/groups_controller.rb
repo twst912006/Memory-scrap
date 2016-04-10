@@ -1,4 +1,7 @@
 class GroupsController < ApplicationController
+
+  before_action :authenticate_user!, only: [:new, :edit, :create, :update, :destroy]
+
   def index
     @groups = Group.all
   end
@@ -8,7 +11,7 @@ class GroupsController < ApplicationController
   end
 
   def create
-    @group = Group.create(group_params)
+    @group = current_user.groups.new(group_params)
 
     if @group.save
       redirect_to groups_path
@@ -19,15 +22,15 @@ class GroupsController < ApplicationController
 
   def show
     @group = Group.find(params[:id])
-    @posts = @group.posts 
+    @posts = @group.posts
   end
 
   def edit
-    @group = Group.find(params[:id])
+    @group = current_user.groups.find(params[:id])
   end
 
   def update
-    @group = Group.find(params[:id])
+    @group = current_user.groups.find(params[:id])
 
     if @group.update(group_params)
       redirect_to group_path, notice: "修改完畢。"
@@ -37,7 +40,7 @@ class GroupsController < ApplicationController
   end
 
   def destroy
-    @group = Group.find(params[:id])
+    @group = current_user.groups.find(params[:id])
     @group.destroy
     redirect_to groups_path, alert: "刪除完畢。"
   end
