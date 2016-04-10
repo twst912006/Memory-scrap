@@ -14,7 +14,8 @@ class GroupsController < ApplicationController
     @group = current_user.groups.new(group_params)
 
     if @group.save
-      redirect_to groups_path
+      current_user.join!(@group)
+      redirect_to groups_path, notice:"新增文章成功。"
     else
       render :new
     end
@@ -44,6 +45,34 @@ class GroupsController < ApplicationController
     @group.destroy
     redirect_to groups_path, alert: "刪除完畢。"
   end
+
+   def join
+   @group = Group.find(params[:id])
+
+   if !current_user.is_member_of?(@group)
+     current_user.join!(@group)
+     flash[:notice] = "已經關注此文章"
+   else
+     flash[:warning] = "你已經關注該文章。"
+   end
+
+   redirect_to group_path(@group)
+ end
+
+ def quit
+   @group = Group.find(params[:id])
+
+   if current_user.is_member_of?(@group)
+     current_user.quit!(@group)
+     flash[:alert] = "已取消關注該文章。"
+   else
+     flash[:warning] = "你沒有關注該文章了！"
+   end
+
+   redirect_to group_path(@group)
+ end
+
+
 
   private
 
